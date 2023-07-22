@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Birthday Discount & Product Recommendations</title>
+  <style>
+    /* Basic styling for the email body */
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 20px;
+    }
+
+    /* Header section */
+    .header {
+      background-color: #F44336;
+      color: #ffffff;
+      padding: 15px;
+      text-align: center;
+    }
+
+    /* Main content section */
+    .content {
+      padding: 20px;
+      background-color: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 5px;
+    }
+
+    /* Gift Card Discount */
+    .gift-card {
+      text-align: center;
+      font-size: 24px;
+      color: #F44336;
+      margin-bottom: 20px;
+    }
+
+    /* Product Recommendations */
+    .products {
+      margin-bottom: 20px;
+    }
+
+    .product-item {
+      display: flex;
+      margin-bottom: 10px;
+    }
+
+    .product-image {
+      flex: 0 0 100px;
+      margin-right: 10px;
+    }
+
+    .product-details {
+      flex: 1;
+    }
+
+    .product-title {
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .product-price {
+      font-size: 14px;
+      color: #757575;
+    }
+
+    /* Footer section */
+    .footer {
+      text-align: center;
+      color: #757575;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <h1>Birthday Discount & Product Recommendations</h1>
+  </div>
+
+  <div class="content">
+    <div class="gift-card">
+      Use CODE <span style="font-weight: bold;" id="discount-id">{{ GIFT_CARD_DISCOUNT }}</span> and get 25% off off on
+      your birthday!
+    </div>
+
+    <div id="product-id" class="products">
+
+      <!-- Add more recommended products here -->
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>
+      This email is sent to you as part of our birthday celebration. Please visit our website to redeem your gift card
+      and explore more exciting products.
+    </p>
+  </div>
+</body>
+
+</html>

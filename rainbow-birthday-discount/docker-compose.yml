@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+  dev-db:
+    image: postgres:13
+    ports:
+      - 5434:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: rainbow
+    networks:
+      - rainbow
+  # test-db:
+  #   image: postgres:13
+  #   ports:
+  #     - 5435:5432
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: 1234
+  #     POSTGRES_DB: rainbow
+  #   networks:
+  #     - rainbow
+
+  redis:
+    image: 'redis:latest'
+    ports:
+      - '6379:6379'
+    networks:
+      - rainbow
+networks:
+  rainbow:

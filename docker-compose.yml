@@ -1,0 +1,70 @@
+version: '3'
+services:
+  dev-db:
+    image: postgres:13
+    container_name: dev-db
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: rainbow
+    networks:
+      - rainbow
+
+  recommender:
+    container_name: recommender
+    build:
+      context: ./recommender
+      dockerfile: Dockerfile
+    ports:
+      - '3331:3331'
+    restart: always
+    networks:
+      - rainbow
+
+  # main:
+  #   container_name: rainbow-birthday-discount
+  #   build:
+  #     context: ./rainbow-birthday-discount
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - '3333:3333'
+  #   networks:
+  #     - rainbow
+
+  # rainbow-queue:
+  #   container_name: rainbow-queue
+  #   build:
+  #     context: ./rainbow-queue
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - '3335:3335'
+  #   networks:
+  #     - rainbow
+
+  # emailer:
+  #   container_name: emailer
+  #   build:
+  #     context: ./emailer
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - '3336:3336'
+  #   networks:
+  #     - rainbow
+
+  # cron:
+  #   container_name: cron
+  #   build:
+  #     context: ./cron-test
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - '3332:3332'
+  #   networks:
+  #     - rainbow
+  #   depends_on:
+  #     - rainbow-queue
+
+networks:
+  rainbow:
+    driver: bridge

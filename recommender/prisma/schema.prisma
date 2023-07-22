@@ -1,0 +1,112 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  firstName String
+  lastName  String
+  email     String   @unique
+  password  String
+  birthday  DateTime @db.Date
+  role      Role     @default(USER)
+  emailsent Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  discounts Discount[]
+  view      UserProductView[]
+  purchase  Purchase[]
+
+  @@map("users")
+}
+
+model Discount {
+  id             Int      @id @default(autoincrement())
+  userid         Int
+  user           User     @relation(fields: [userid], references: [id])
+  discountCode   String   @unique
+  expirationDate DateTime @db.Date
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("discounts")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model Product {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+  price       Decimal
+  unit        String
+  category    String?
+  item        String?
+  variety     String?
+
+  user     UserProductView[]
+  purchase ProductPurchase[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model UserProductView {
+  product   Product @relation(fields: [productid], references: [id])
+  productid Int
+  User      User    @relation(fields: [userid], references: [id])
+  userid    Int
+
+  viewCount Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([productid, userid])
+}
+
+model Purchase {
+  id      Int               @id @default(autoincrement())
+  userid  Int
+  user    User              @relation(fields: [userid], references: [id])
+  product ProductPurchase[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("purchases")
+}
+
+model ProductPurchase {
+  product    Product  @relation(fields: [productid], references: [id])
+  productid  Int
+  purchase   Purchase @relation(fields: [purchaseid], references: [id])
+  purchaseid Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([productid, purchaseid])
+}
+
+model Email {
+  id           Int      @id @default(autoincrement())
+  html_content String   @db.Text
+  entity       String   @db.Text
+  selector     String
+  title        String
+  price        String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
