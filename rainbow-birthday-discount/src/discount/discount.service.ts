@@ -2,31 +2,41 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Discount } from './entity';
 import { CreateDiscountDto, UpdateDiscountDto } from './dto';
+import { RainbowLogger } from 'src/utils/logger/logger.service';
 
 @Injectable()
 export class DiscountService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private logger: RainbowLogger
+    ) {}
 
   async generateCode(length: number): Promise<string> {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let code = '';
-  
-    // Generate a random code with the specified length
-    for (let i = 0; i < length; i++) {
-      const randomIndex = Math.floor(Math.random() * characters.length);
-      code += characters.charAt(randomIndex);
+    try {
+      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      let code = '';
+
+      // Generate a random code with the specified length
+      for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        code += characters.charAt(randomIndex);
+      }
+
+      const existingCode = await this.prisma.discount.findUnique({
+        where: { discountCode: code },
+      });
+
+      // Check if the code already exists in the database
+      if (existingCode) {
+        return this.generateCode(length);
+      }
+
+      return code;
+    } catch (error) {
+      console.error(error.message);
+      this.logger.error(error.message, error.stack);
+      throw error;
     }
-  
-    const existingCode = await this.prisma.discount.findUnique({
-      where: { discountCode: code },
-    });
-  
-    // Check if the code already exists in the database
-    if (existingCode) {
-      return this.generateCode(length);
-    }
-  
-    return code;
   }
   
   

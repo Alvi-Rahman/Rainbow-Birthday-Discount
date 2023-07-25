@@ -1,27 +1,36 @@
 // purchase.service.ts
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service'; // Replace with the path to your Prisma service
 import { PurchaseDTO } from './dto';
+import { RainbowLogger } from 'src/utils/logger/logger.service';
 
 @Injectable()
 export class PurchaseService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private logger: RainbowLogger
+    ) {}
 
   async createPurchase(data: PurchaseDTO): Promise<any> {
-    // Assuming each product in the purchase is associated with the same user.
-    const { userid, productids } = data;
-    const purchaseData = {
-      userid,
-      product: {
-        create: productids.map((productid) => ({
-          productid
-        })),
-      },
-    };
+    try {
+      const { userid, productids } = data;
+      const purchaseData = {
+        userid,
+        product: {
+          create: productids.map((productid) => ({
+            productid
+          })),
+        },
+      };
 
-    return this.prisma.purchase.create({
-      data: purchaseData,
-    });
+      return this.prisma.purchase.create({
+        data: purchaseData,
+      });
+    } catch (error) {
+      console.error(error.message);
+      this.logger.error(error.message, error.stack);
+      throw error;
+    }
   }
 }

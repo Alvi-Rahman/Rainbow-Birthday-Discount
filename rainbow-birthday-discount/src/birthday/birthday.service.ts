@@ -1,16 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaClient, Prisma } from '@prisma/client';
+import { RainbowLogger } from 'src/utils/logger/logger.service';
 
 @Injectable()
 export class BirthdayService {
   private prisma: PrismaClient;
 
-  constructor() {
-    this.prisma = new PrismaClient();
+  constructor(private logger: RainbowLogger) {
+    this.prisma = new PrismaClient()
   }
 
   async getUsersWithBirthdayInOneWeek(): Promise<any> {
-    return this.prisma.$queryRaw`
+    try {
+      return this.prisma.$queryRaw`
         SELECT 
         "id",
         "firstName",
@@ -32,5 +34,10 @@ export class BirthdayService {
         AND EXTRACT(DOY FROM birthday) >= EXTRACT(DOY FROM CURRENT_DATE))
         ORDER BY EXTRACT(DOY FROM birthday);
     `;
+    } catch (error) {
+      console.error(error.message);
+      this.logger.error(error.message, error.stack);
+      throw error;
+    }
   }
 }

@@ -5,9 +5,11 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  Res,
 } from '@nestjs/common';
 import { EmailService } from './email.service';
 import { JwtGuard } from 'src/auth/guard';
+import { Response } from 'express';
 
 @UseGuards(JwtGuard)
 @Controller('emails')
@@ -24,18 +26,23 @@ export class EmailController {
       subject: string;
       htmlId: number;
     },
+    @Res() res: Response,
   ): Promise<object> {
     try {
-      return await this.emailService.sendEmail(
+      const response = await this.emailService.sendEmail(
         emailData.userId,
         emailData.to,
         emailData.subject,
         emailData.htmlId,
       );
-      //   return 'Email sent successfully';
+      if (response instanceof Error) {
+        return res.status(HttpStatus.BAD_REQUEST).json();
+      } else {
+        return res.status(HttpStatus.OK).json(response);
+      }
     } catch (error) {
-      console.log(error);
-      return { message: 'Failed to send email' };
+      // console.log(error);
+      return res.status(HttpStatus.BAD_REQUEST).json();
     }
   }
 }

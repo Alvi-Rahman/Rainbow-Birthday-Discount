@@ -7,6 +7,7 @@ import {
 import { QueueController } from './queue.controller';
 import { BullModule } from '@nestjs/bull';
 import { HttpModule } from '@nestjs/axios';
+import { RainbowLogger } from 'src/utils/logger/logger.service';
 
 @Module({
   imports: [
@@ -20,7 +21,13 @@ import { HttpModule } from '@nestjs/axios';
       },
     ),
   ],
-  providers: [MessageProducerService, MessageConsumer, EmailConsumer],
+  providers: [
+    MessageProducerService,
+    MessageConsumer,
+    EmailConsumer,
+    RainbowLogger,
+  ],
   controllers: [QueueController],
+  exports: [RainbowLogger],
 })
 export class QueueModule {}

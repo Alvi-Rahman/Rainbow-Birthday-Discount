@@ -9,6 +9,7 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { User } from './entity';
+import { RainbowLogger } from 'src/utils/logger/logger.service';
 
 @Injectable()
 export class AuthService {
@@ -16,6 +17,7 @@ export class AuthService {
     private prisma: PrismaService,
     private jwt: JwtService,
     private config: ConfigService,
+    private logger: RainbowLogger
   ) {}
 
   async signup(dto: SignUpDto) {
@@ -36,58 +38,72 @@ export class AuthService {
         PrismaClientKnownRequestError
       ) {
         if (error.code === 'P2002') {
+          console.error(error.message);
+          this.logger.error(error.message, error.stack);
           throw new ForbiddenException(
             'Credentials taken',
           );
         }
       }
+      console.error(error.message);
+      this.logger.error(error.message, error.stack);
       throw error;
     }
   }
 
   async signin(dto: SignInDto) {
     // find the user by email
-    const user =
-      await this.prisma.user.findUnique({
-        where: {
-          email: dto.email,
-        },
-      });
-    // if user does not exist throw exception
-    if (!user)
-      throw new ForbiddenException(
-        'Credentials incorrect',
-      );
+    try {
+      const user =
+        await this.prisma.user.findUnique({
+          where: {
+            email: dto.email,
+          },
+        });
+      if (!user)
+        throw new ForbiddenException(
+          'Credentials incorrect',
+        );
 
-    // compare password
-    const match = await argon.verify(
-      user.password,
-      dto.password,
-    );
-    // if password incorrect throw exception
-    if (!match)
-      throw new ForbiddenException(
-        'Credentials incorrect',
+      const match = await argon.verify(
+        user.password,
+        dto.password,
       );
-    return this.signToken(user);
+      
+      if (!match)
+        throw new ForbiddenException(
+          'Credentials incorrect',
+        );
+      return this.signToken(user);
+    } catch (error) {
+      console.error(error.message);
+      this.logger.error(error.message, error.stack);
+      throw error;
+    }
   }
 
   async signToken(
     payload: User,
   ): Promise<{ access_token: string }> {
     
-    const secret = this.config.get('JWT_SECRET');
+    try {
+      const secret = this.config.get('JWT_SECRET');
 
-    const token = await this.jwt.signAsync(
-      payload,
-      {
-        expiresIn: '6h',
-        secret: secret,
-      },
-    );
+      const token = await this.jwt.signAsync(
+        payload,
+        {
+          expiresIn: '6h',
+          secret: secret,
+        },
+      );
 
-    return {
-      access_token: token,
-    };
+      return {
+        access_token: token,
+      };
+    } catch (error) {
+      console.error(error.message);
+      this.logger.error(error.message, error.stack);
+      throw error;
+    }
   }
 }
